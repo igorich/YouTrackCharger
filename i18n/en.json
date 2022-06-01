@@ -1,0 +1,12 @@
+{
+    "AddBoard_Desc": "Adds a board to the global list",
+    "AddBoard_Params": "$board-url $board-prefix $auth-token",
+    "BoardList_Desc": "Get my YouTrack boards list",
+    "ListAllBoards_Desc": "Get all YouTrack boards list",
+    "RemoveBoard_Params": "$board-url|$prefix",
+    "RemoveBoard_Desc": "Remove YouTrack boards from global list",
+    "Subscribe_Params": "$url",
+    "Subscribe_Desc": "Subscribe to board events",
+    "Unsubscribe_Params": "$url",
+    "Unsubscribe_Desc": "Unsubscribe from notifications of the specified board"
+}
