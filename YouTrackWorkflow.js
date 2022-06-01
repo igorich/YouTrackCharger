@@ -1,5 +1,5 @@
-const APP_URL = 'https://chat.raftds.com';
-const APP_URN = 'api/apps/public/8a883794-f8f5-4e8d-86fe-310a5a150fb7/webhook';
+const APP_URL = 'https://<rocket chat server URL>';
+const APP_URN = '<webhook path from app admin panel>';
 
 const entities = require('@jetbrains/youtrack-scripting-api/entities');
 const http = require('@jetbrains/youtrack-scripting-api/http');
