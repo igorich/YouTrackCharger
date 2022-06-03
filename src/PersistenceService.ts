@@ -12,21 +12,42 @@ export class PersistenceService {
         senderId: string,
         boardUrl: string,
         prefix: string,
-        youTrackUserName?: string,
+        youTrackUserName: string,
     ) {
         const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, senderId);
         const urlAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, boardUrl);
         const prefixAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, prefix);
+        const youtrackAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, youTrackUserName);
         const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
 
         const dataObj: ISubscribeInfo = {
             userId: senderId,
-            youTrackUserName: youTrackUserName ?? senderId,
+            youTrackUserName,
             boardUrl,
             prefix,
         };
 
-        await persis.createWithAssociations(dataObj, [ userAssociation, urlAssociation, prefixAssociation, typeAssociation ]);
+        await persis.createWithAssociations(dataObj, [ userAssociation, urlAssociation, prefixAssociation, typeAssociation, youtrackAssociation ]);
+    }
+
+    public static async getSubscriptionYtUsername(
+        read: IRead,
+        ytUsername: string,
+        url: string,
+    ): Promise<ISubscribeInfo | undefined> {
+        const associations = [
+            new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, ytUsername),
+            new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, url),
+            new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE),
+        ];
+
+        const persisRead = read.getPersistenceReader();
+        const subscriptionData = await persisRead.readByAssociations(associations);
+        if (subscriptionData.length > 0) {
+            return subscriptionData[0] as ISubscribeInfo;
+        }
+
+        return undefined;
     }
 
     public static  async removeSubscription(persis: IPersistence, context: SlashCommandContext, boardUrl: string) {

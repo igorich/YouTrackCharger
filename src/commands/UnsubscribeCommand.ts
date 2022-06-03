@@ -19,7 +19,8 @@ export class UnsubscribeCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence): Promise<void> {
+        persis: IPersistence
+    ): Promise<void> {
         const args = context.getArguments();
         if (!args[0]) {
             this.app.getLogger().log("URL undefined");

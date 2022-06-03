@@ -5,8 +5,8 @@
     "ListAllBoards_Desc": "Get all YouTrack boards list",
     "RemoveBoard_Params": "$board-url|$prefix",
     "RemoveBoard_Desc": "Remove YouTrack boards from global list",
-    "Subscribe_Params": "$url",
-    "Subscribe_Desc": "Subscribe to board events",
+    "Subscribe_Params": "$url [$yt-username optional]",
+    "Subscribe_Desc": "Subscribe to board events. Specify yt-username if it different from RC username",
     "Unsubscribe_Params": "$url",
     "Unsubscribe_Desc": "Unsubscribe from notifications of the specified board"
 }
