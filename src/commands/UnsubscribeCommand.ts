@@ -1,10 +1,9 @@
 import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { App } from "@rocket.chat/apps-engine/definition/App";
-import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
-import { TypeAssociation } from "../definitions/TypeAssociation";
 import { Prettifier } from "../Prettifier";
 import { Utils } from "../Utils";
+import {PersistenceService} from "../PersistenceService";
 
 export class UnsubscribeCommand implements ISlashCommand {
     public command: string = "yt-unsubscribe";
@@ -36,11 +35,8 @@ export class UnsubscribeCommand implements ISlashCommand {
         const creator = modify.getCreator();
         const messageBuilder = creator.startMessage();
         const sender = context.getSender();
-        const keyAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, sender.id);
-        const urlAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, domain);
-        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
 
-        await persis.removeByAssociations([ keyAssociation, urlAssociation, typeAssociation ]);
+        await PersistenceService.removeSubscription(persis, context, domain);
 
         const [botSender, botRoom] = await Utils.getBotData(this.app, read, modify, sender);
         if (!botRoom) {

@@ -7,6 +7,7 @@ import { ISubscribeInfo } from "../definitions/ISubscribeInfo";
 import { TypeAssociation } from "../definitions/TypeAssociation";
 import { Prettifier } from "../Prettifier";
 import { Utils } from "../Utils";
+import { PersistenceService } from "../PersistenceService";
 
 export class SubscribeCommand implements ISlashCommand {
     public command: string = "yt-subscribe";
@@ -22,7 +23,8 @@ export class SubscribeCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence): Promise<void> {
+        persis: IPersistence
+    ): Promise<void> {
         const creator = modify.getCreator();
         const messageBuilder = creator.startMessage();
         const sender = context.getSender();
@@ -49,16 +51,8 @@ export class SubscribeCommand implements ISlashCommand {
         //#endregion
         const prefix = (persistenceItems[0] as IBoardInfo)?.prefix;
 
-        const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, sender.id);
-        const prefixAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, prefix);
-        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
-        const dataObj: ISubscribeInfo = {
-            userId: sender.id,
-            boardUrl: url,
-            prefix,
-        };
+        await PersistenceService.addSubscription(persis, sender.id, url, prefix);
 
-        await persis.createWithAssociations(dataObj, [ userAssociation, urlAssociation, prefixAssociation, typeAssociation ]);
         const [botSender, botRoom] = await Utils.getBotData(this.app, read, modify, sender);
         if (!botRoom) {
             this.app.getLogger().log("Error occured while get bot room.");

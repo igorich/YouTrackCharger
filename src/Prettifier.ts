@@ -1,5 +1,4 @@
 import { ILogger, IRead } from "@rocket.chat/apps-engine/definition/accessors";
-import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import {
     BlockElementType,
     BlockType,
@@ -10,7 +9,7 @@ import {
     ISectionBlock,
     TextObjectType } from "@rocket.chat/apps-engine/definition/uikit";
 import { ISubscribeInfo } from "./definitions/ISubscribeInfo";
-import { TypeAssociation } from "./definitions/TypeAssociation";
+import { PersistenceService } from "./PersistenceService";
 import { Utils } from "./Utils";
 import { WorkItem } from "./definitions/WorkItem";
 
@@ -24,25 +23,10 @@ export class Prettifier {
             const regExpMatches: RegExpExecArray | null = this.targetUrlRegEx.exec(message);
             const parsedBoardName: string | undefined = regExpMatches?.groups?.link;
             if(regExpMatches && parsedBoardName) {
-                return Prettifier.checkURIFromMessage(regExpMatches[0], parsedBoardName, read);
+                return await PersistenceService.checkIfDomainIsInAccessible(read, regExpMatches[0], parsedBoardName);
             }
         }
         logger.log(`Message <${message}> was rejected`);
-        return false;
-    }
-
-    // Checks if the URI from the message matches the conditions
-    private static async checkURIFromMessage(messageURI: string, boardName: string, read: IRead) : Promise<boolean> {
-        if(messageURI.includes("/issue/")) {
-            const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.LIST);
-            const persistenceItems = await read.getPersistenceReader().readByAssociations([ typeAssociation ]);
-            // need to check if a board name in the global list of boards
-            for(let obj of persistenceItems) {
-                if((obj as ISubscribeInfo).boardUrl.includes(boardName)) {
-                    return true;
-                }
-            }
-        }
         return false;
     }
 

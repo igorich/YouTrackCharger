@@ -1,10 +1,9 @@
 import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { App } from "@rocket.chat/apps-engine/definition/App";
-import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBlock } from "@rocket.chat/apps-engine/definition/uikit";
 import { ISubscribeInfo } from "../definitions/ISubscribeInfo";
-import { TypeAssociation } from "../definitions/TypeAssociation";
+import { PersistenceService} from "../PersistenceService";
 import { Prettifier } from "../Prettifier";
 import { Utils } from "../Utils";
 
@@ -22,17 +21,15 @@ export class BoardListCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence): Promise<void> {
+        persis: IPersistence
+    ): Promise<void> {
         const creator = modify.getCreator();
         const messageBuilder = creator.startMessage();
         const sender = context.getSender();
-        const persistenceReader = read.getPersistenceReader();
-        const keyAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, sender.id);
-        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
         const prettifier = new Prettifier();
 
-        const persistenceItems = await persistenceReader.readByAssociations([ keyAssociation, typeAssociation ]);
-        const boardList = persistenceItems.map((obj) => obj as ISubscribeInfo);
+        const boardList: ISubscribeInfo[] = await PersistenceService.getAllSubscriptions(read, sender.id);
+
         const message: Array<IBlock> = prettifier.prettyList(boardList, "My boards");
         const [botSender, botRoom] = await Utils.getBotData(this.app, read, modify, sender);
 

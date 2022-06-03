@@ -6,6 +6,7 @@ import { IBlock } from "@rocket.chat/apps-engine/definition/uikit";
 import { ISubscribeInfo } from "../definitions/ISubscribeInfo";
 import { TypeAssociation } from "../definitions/TypeAssociation";
 import { Prettifier } from "../Prettifier";
+import { PersistenceService } from "../PersistenceService";
 
 export class ListAllBoardsCommand implements ISlashCommand {
     public command: string = "yt-list";
@@ -21,17 +22,15 @@ export class ListAllBoardsCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence): Promise<void> {
+        persis: IPersistence
+    ): Promise<void> {
         const creator = modify.getCreator();
         const messageBuilder = creator.startMessage();
         const sender = context.getSender();
         const room = context.getRoom();
-        const persistenceReader = read.getPersistenceReader();
-        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.LIST);
         const prettifier = new Prettifier();
 
-        const persistenceItems = await persistenceReader.readByAssociations([ typeAssociation ]);
-        const boardList = persistenceItems.map((obj) => obj as ISubscribeInfo);
+        const boardList = await PersistenceService.getAllBoards(read);
         const message: Array<IBlock> = prettifier.prettyList(boardList, "All boards");
 
         messageBuilder
