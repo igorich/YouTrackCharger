@@ -7,7 +7,13 @@ import { IBoardInfo } from "./definitions/IBoardInfo";
 
 export class PersistenceService {
 
-    public static async addSubscription(persis: IPersistence, senderId: string, boardUrl: string, prefix: string) {
+    public static async addSubscription(
+        persis: IPersistence,
+        senderId: string,
+        boardUrl: string,
+        prefix: string,
+        youTrackUserName?: string,
+    ) {
         const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, senderId);
         const urlAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, boardUrl);
         const prefixAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, prefix);
@@ -15,6 +21,7 @@ export class PersistenceService {
 
         const dataObj: ISubscribeInfo = {
             userId: senderId,
+            youTrackUserName: youTrackUserName ?? senderId,
             boardUrl,
             prefix,
         };
