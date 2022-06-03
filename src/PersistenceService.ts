@@ -47,7 +47,7 @@ export class PersistenceService {
         return persistenceItems.map((obj) => obj as ISubscribeInfo);
     }
 
-    private static async isSubscriptionPresentedInStorage(boardUrl: string, read: IRead): Promise<boolean> {
+    private static async isSubscriptionPresentedInStorage(read: IRead, boardUrl: string): Promise<boolean> {
         const persisRead = read.getPersistenceReader();
         const miscAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, boardUrl);
         const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
@@ -70,7 +70,7 @@ export class PersistenceService {
         read: IRead,
         boardUrlOrPrefix: string,
     ): Promise<boolean | Array<object>> {
-        const isActive: boolean = await PersistenceService.isSubscriptionPresentedInStorage(boardUrlOrPrefix, read);
+        const isActive: boolean = await PersistenceService.isSubscriptionPresentedInStorage(read, boardUrlOrPrefix);
         if (isActive) {
             return false;
         }
