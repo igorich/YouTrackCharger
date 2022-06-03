@@ -1,9 +1,7 @@
-import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { App } from "@rocket.chat/apps-engine/definition/App";
 import { IBoardInfo } from "../definitions/IBoardInfo";
-import { TypeAssociation } from "../definitions/TypeAssociation";
 import { PersistenceService } from "../PersistenceService";
 import { Prettifier } from "../Prettifier";
 
