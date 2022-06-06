@@ -34,7 +34,7 @@ export class PersistenceService {
         read: IRead,
         ytUsername: string,
         url: string,
-    ): Promise<ISubscribeInfo | undefined> {
+    ): Promise<ISubscribeInfo | null> {
         const associations = [
             new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, ytUsername),
             new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, url),
@@ -47,7 +47,7 @@ export class PersistenceService {
             return subscriptionData[0] as ISubscribeInfo;
         }
 
-        return undefined;
+        return null;
     }
 
     public static  async removeSubscription(persis: IPersistence, context: SlashCommandContext, boardUrl: string) {

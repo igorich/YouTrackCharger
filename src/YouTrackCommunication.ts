@@ -6,16 +6,16 @@ import { Prettifier } from "./Prettifier";
 export class YouTrackCommunication {
     private static readonly requestedFieldsFilter: string = "idReadable,project(name),summary,description,fields(projectCustomField(field(name)),value(name))";
 
-    public static async getWorkItem(http: IHttp, url: string, persis: IPersistenceRead, logger: ILogger): Promise<WorkItem | undefined> {
+    public static async getWorkItem(http: IHttp, url: string, persis: IPersistenceRead, logger: ILogger): Promise<WorkItem | null> {
         const apiUrl: string = url + `?fields=${YouTrackCommunication.requestedFieldsFilter}`;
         const domainName = Prettifier.getUrlDomain(url, true);
         if (!domainName) {
-            return;
+            return null;
         }
 
         const authToken = await PersistenceChecker.tryGetAuthTokenByUrl(persis, domainName);
         if (!authToken) {
-            return;
+            return null;
         }
 
         logger.log("getWorkItem request: ", apiUrl);
@@ -49,7 +49,7 @@ export class YouTrackCommunication {
             return workItem;
         } catch (exception) {
             logger.log(`ERROR received from ${apiUrl}: ${exception}\n`);
-            return undefined;
+            return null;
         }
     }
 }

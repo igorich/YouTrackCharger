@@ -19,9 +19,9 @@ import { ListAllBoardsCommand } from "./src/commands/ListAllBoardsCommand";
 import { RemoveBoardCommand } from "./src/commands/RemoveBoardCommand";
 import { SubscribeCommand } from "./src/commands/SubscribeCommand";
 import { UnsubscribeCommand } from "./src/commands/UnsubscribeCommand";
+import { WorkItem } from "./src/definitions/WorkItem";
 import { Prettifier } from "./src/Prettifier";
 import { WebhookEndpoint } from "./src/WebhookEndpoint";
-import { WorkItem } from "./src/definitions/WorkItem";
 import { YouTrackCommunication } from "./src/YouTrackCommunication";
 
 export class YouTrackChargerApp extends App implements IPreMessageSentModify {
@@ -70,7 +70,7 @@ export class YouTrackChargerApp extends App implements IPreMessageSentModify {
         persistence: IPersistence,
     ): Promise<IMessage> {
         const workItem = await this.getWorkItem(http, read, message.text);
-        if (workItem !== undefined) {
+        if (workItem !== null) {
             if (message.text && message.text?.length > workItem.URL.length) {
                 const baseBody: ISectionBlock = {
                     type: BlockType.SECTION,
@@ -87,9 +87,9 @@ export class YouTrackChargerApp extends App implements IPreMessageSentModify {
         return builder.getMessage();
     }
 
-    private async getWorkItem(http: IHttp, read: IRead, text: string | undefined): Promise<WorkItem | undefined> {
+    private async getWorkItem(http: IHttp, read: IRead, text: string | undefined): Promise<WorkItem | null> {
         if (text === undefined) {
-            return undefined;
+            return null;
             // impossible due Prettifier.reviewMessage condition
             // throw exception in this case
         }
