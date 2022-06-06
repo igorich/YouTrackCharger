@@ -1,14 +1,11 @@
 import { IHttp, IMessageBuilder, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from "@rocket.chat/apps-engine/definition/api";
-import { IApp } from "@rocket.chat/apps-engine/definition/IApp";
 import { IRoom } from "@rocket.chat/apps-engine/definition/rooms";
 import { IUser } from "@rocket.chat/apps-engine/definition/users";
 import { Utils } from "./Utils";
 import { PersistenceService } from "./PersistenceService";
 
 export class WebhookEndpoint extends ApiEndpoint {
-    public path = "webhook";
-
     public async post(
         request: IApiRequest,
         endpoint: IApiEndpointInfo,

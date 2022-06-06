@@ -21,14 +21,14 @@ export class BoardListCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence
+        persis: IPersistence,
     ): Promise<void> {
         const creator = modify.getCreator();
         const messageBuilder = creator.startMessage();
         const sender = context.getSender();
         const prettifier = new Prettifier();
 
-        const boardList: ISubscribeInfo[] = await PersistenceService.getAllSubscriptions(read, sender.id);
+        const boardList: Array<ISubscribeInfo> = await PersistenceService.getAllSubscriptions(read, sender.id);
 
         const message: Array<IBlock> = prettifier.prettyList(boardList, "My boards");
         const [botSender, botRoom] = await Utils.getBotData(this.app, read, modify, sender);

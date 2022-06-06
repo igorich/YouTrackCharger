@@ -1,9 +1,9 @@
 import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { App } from "@rocket.chat/apps-engine/definition/App";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
+import { PersistenceService } from "../PersistenceService";
 import { Prettifier } from "../Prettifier";
 import { Utils } from "../Utils";
-import {PersistenceService} from "../PersistenceService";
 
 export class UnsubscribeCommand implements ISlashCommand {
     public command: string = "yt-unsubscribe";
@@ -19,7 +19,7 @@ export class UnsubscribeCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence
+        persis: IPersistence,
     ): Promise<void> {
         const args = context.getArguments();
         if (!args[0]) {

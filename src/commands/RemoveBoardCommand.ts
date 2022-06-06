@@ -3,8 +3,8 @@ import { App } from "@rocket.chat/apps-engine/definition/App";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBlock } from "@rocket.chat/apps-engine/definition/uikit";
 import { ISubscribeInfo } from "../definitions/ISubscribeInfo";
-import { Prettifier } from "../Prettifier";
 import { PersistenceService } from "../PersistenceService";
+import { Prettifier } from "../Prettifier";
 
 export class RemoveBoardCommand implements ISlashCommand {
     public command: string = "yt-remove";
@@ -20,7 +20,8 @@ export class RemoveBoardCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence): Promise<void> {
+        persis: IPersistence,
+    ): Promise<void> {
         const creator = modify.getCreator();
         const prettifier = new Prettifier();
         const messageBuilder = creator.startMessage();

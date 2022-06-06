@@ -9,9 +9,9 @@ import {
     ISectionBlock,
     TextObjectType } from "@rocket.chat/apps-engine/definition/uikit";
 import { ISubscribeInfo } from "./definitions/ISubscribeInfo";
+import { WorkItem } from "./definitions/WorkItem";
 import { PersistenceService } from "./PersistenceService";
 import { Utils } from "./Utils";
-import { WorkItem } from "./definitions/WorkItem";
 
 export class Prettifier {
     private static readonly targetUrlRegEx = /(http|https):\/\/(?<link>[\d\w\.]+)\/issue\/\w{2}-\d+/g;
@@ -22,7 +22,7 @@ export class Prettifier {
             this.targetUrlRegEx.lastIndex = 0; // reset index before parsing
             const regExpMatches: RegExpExecArray | null = this.targetUrlRegEx.exec(message);
             const parsedBoardName: string | undefined = regExpMatches?.groups?.link;
-            if(regExpMatches && parsedBoardName) {
+            if (regExpMatches && parsedBoardName) {
                 return await PersistenceService.checkIfDomainIsInAccessible(read, regExpMatches[0], parsedBoardName);
             }
         }
@@ -70,7 +70,7 @@ export class Prettifier {
             type: BlockType.SECTION,
             text: {
                 type: TextObjectType.MARKDOWN,
-                text: `>  ${Utils.replaceAll(workItem.Description, '\n\n', '\n\n> ')}`, // add split by lines
+                text: `>  ${Utils.replaceAll(workItem.Description, "\n\n", "\n\n> ")}`, // add split by lines
             },
             accessory: {
                 actionId: "btAction",
@@ -85,7 +85,7 @@ export class Prettifier {
             },
         };
         const fields: Array<IContextBlock> = [];
-        if(workItem.Priority) {
+        if (workItem.Priority) {
             fields.push({
                 type: BlockType.CONTEXT,
                 elements: [{
@@ -97,7 +97,7 @@ export class Prettifier {
                 }],
             });
         }
-        if(workItem.State) {
+        if (workItem.State) {
             fields.push({
                 type: BlockType.CONTEXT,
                 elements: [{
@@ -109,7 +109,7 @@ export class Prettifier {
                 }],
             });
         }
-        if(workItem.Project) {
+        if (workItem.Project) {
             fields.push({
                 type: BlockType.CONTEXT,
                 elements: [{
@@ -121,7 +121,7 @@ export class Prettifier {
                 }],
             });
         }
-        if(workItem.Assignee) {
+        if (workItem.Assignee) {
                 fields.push({
                 type: BlockType.CONTEXT,
                 elements: [{
