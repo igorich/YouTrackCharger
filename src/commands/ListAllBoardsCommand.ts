@@ -2,8 +2,8 @@ import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/de
 import { App } from "@rocket.chat/apps-engine/definition/App";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBlock } from "@rocket.chat/apps-engine/definition/uikit";
-import { Prettifier } from "../Prettifier";
 import { PersistenceService } from "../PersistenceService";
+import { Prettifier } from "../Prettifier";
 
 export class ListAllBoardsCommand implements ISlashCommand {
     public command: string = "yt-list";
@@ -19,7 +19,7 @@ export class ListAllBoardsCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence
+        persis: IPersistence,
     ): Promise<void> {
         const creator = modify.getCreator();
         const messageBuilder = creator.startMessage();

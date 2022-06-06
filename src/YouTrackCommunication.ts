@@ -1,7 +1,7 @@
 import { IHttp, ILogger, IPersistenceRead } from "@rocket.chat/apps-engine/definition/accessors";
+import { WorkItem } from "./definitions/WorkItem";
 import { PersistenceChecker } from "./PersistenceChecker";
 import { Prettifier } from "./Prettifier";
-import { WorkItem } from "./definitions/WorkItem";
 
 export class YouTrackCommunication {
     private static readonly requestedFieldsFilter: string = "idReadable,project(name),summary,description,fields(projectCustomField(field(name)),value(name))";
@@ -26,14 +26,14 @@ export class YouTrackCommunication {
                 },
             });
 
-            let customFields = {};
+            const customFields: object = {};
             response.data.fields.map((entry) => {
                 customFields[entry.projectCustomField.field.name] = entry.value?.name;
             });
 
             const workItem: WorkItem = {
                 Project: response.data.project.name,
-                Description: response.data.description ?? '',
+                Description: response.data.description ?? "",
                 Title: response.data.summary,
                 ID: response.data.idReadable,
                 URL: url,

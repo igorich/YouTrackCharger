@@ -37,7 +37,8 @@ export class Utils {
         app: IApp,
         read: IRead,
         modify: IModify,
-        sender: IUser): Promise<[IUser | undefined, IRoom | undefined]> {
+        sender: IUser,
+    ): Promise<[IUser | undefined, IRoom | undefined]> {
         const botRoom = await Utils.getDirect(read, modify, sender.username, Utils.BOT_NAME, app.getLogger());
         const botSender = await read.getUserReader().getAppUser(app.getID());
 
@@ -46,7 +47,7 @@ export class Utils {
     }
 
     public static replaceAll(str: string, find: string, replace: string): string {
-        return str.replace(new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), replace);
-      }
+        return str.replace(new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"), replace);
+    }
 
 }

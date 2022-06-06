@@ -1,9 +1,9 @@
-import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import { IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
+import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import { SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
-import { TypeAssociation } from "./definitions/TypeAssociation";
-import { ISubscribeInfo } from "./definitions/ISubscribeInfo";
 import { IBoardInfo } from "./definitions/IBoardInfo";
+import { ISubscribeInfo } from "./definitions/ISubscribeInfo";
+import { TypeAssociation } from "./definitions/TypeAssociation";
 
 export class PersistenceService {
 
@@ -31,7 +31,7 @@ export class PersistenceService {
         await persis.removeByAssociations([ keyAssociation, urlAssociation, typeAssociation ]);
     }
 
-    public static async getAllSubscriptions(read: IRead, senderId: string): Promise<ISubscribeInfo[]> {
+    public static async getAllSubscriptions(read: IRead, senderId: string): Promise<Array<ISubscribeInfo>> {
         const persistenceReader = read.getPersistenceReader();
         const keyAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, senderId);
         const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
@@ -76,7 +76,7 @@ export class PersistenceService {
         return removed;
     }
 
-    public static async getAllBoards(read: IRead): Promise<ISubscribeInfo[]> {
+    public static async getAllBoards(read: IRead): Promise<Array<ISubscribeInfo>> {
         const persistenceReader = read.getPersistenceReader();
         const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.LIST);
 
@@ -86,13 +86,13 @@ export class PersistenceService {
     }
 
     // Checks if the URI from the message matches the conditions
-    public static async checkIfDomainIsInAccessible(read: IRead, messageURI: string, boardName: string) : Promise<boolean> {
-        if(messageURI.includes("/issue/")) {
+    public static async checkIfDomainIsInAccessible(read: IRead, messageURI: string, boardName: string): Promise<boolean> {
+        if (messageURI.includes("/issue/")) {
             const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.LIST);
             const persistenceItems = await read.getPersistenceReader().readByAssociations([ typeAssociation ]);
             // need to check if a board name in the global list of boards
-            for(let obj of persistenceItems) {
-                if((obj as ISubscribeInfo).boardUrl.includes(boardName)) {
+            for (const obj of persistenceItems) {
+                if ((obj as ISubscribeInfo).boardUrl.includes(boardName)) {
                     return true;
                 }
             }

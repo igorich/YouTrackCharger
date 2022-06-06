@@ -9,7 +9,7 @@ export class PersistenceChecker {
         persis: IPersistenceRead,
         username: string,
         url: string,
-        ): Promise<ISubscribeInfo | undefined> {
+    ): Promise<ISubscribeInfo | undefined> {
         const associations = [
             new RocketChatAssociationRecord(RocketChatAssociationModel.USER, username),
             new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, url),

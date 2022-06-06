@@ -3,9 +3,9 @@ import { App } from "@rocket.chat/apps-engine/definition/App";
 import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBoardInfo } from "../definitions/IBoardInfo";
+import { PersistenceService } from "../PersistenceService";
 import { Prettifier } from "../Prettifier";
 import { Utils } from "../Utils";
-import { PersistenceService } from "../PersistenceService";
 
 export class SubscribeCommand implements ISlashCommand {
     public command: string = "yt-subscribe";
@@ -21,7 +21,7 @@ export class SubscribeCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence
+        persis: IPersistence,
     ): Promise<void> {
         const creator = modify.getCreator();
         const messageBuilder = creator.startMessage();

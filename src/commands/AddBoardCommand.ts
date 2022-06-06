@@ -1,6 +1,6 @@
 import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
-import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { App } from "@rocket.chat/apps-engine/definition/App";
+import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBoardInfo } from "../definitions/IBoardInfo";
 import { PersistenceService } from "../PersistenceService";
 import { Prettifier } from "../Prettifier";
@@ -19,7 +19,7 @@ export class AddBoardCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence
+        persis: IPersistence,
     ): Promise<void> {
         const args = context.getArguments();
         const sender = context.getSender();
