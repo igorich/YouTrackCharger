@@ -49,7 +49,9 @@ export class SubscribeCommand implements ISlashCommand {
         //#endregion
         const prefix = (persistenceItems[0] as IBoardInfo)?.prefix;
 
-        await PersistenceService.addSubscription(persis, sender.id, url, prefix, args[1] ?? sender.id);
+        // optional argument, if is not set - YT name is same as in RC
+        const ytUsername = args[1] ?? sender.username;
+        await PersistenceService.addSubscription(persis, sender.id, url, prefix, ytUsername);
 
         const [botSender, botRoom] = await Utils.getBotData(this.app, read, modify, sender);
         if (!botRoom) {
