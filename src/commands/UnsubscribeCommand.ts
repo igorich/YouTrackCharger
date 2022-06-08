@@ -1,7 +1,7 @@
 import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { App } from "@rocket.chat/apps-engine/definition/App";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
-import { PersistenceService } from "../PersistenceService";
+import { PersistenceSubscriptionsService } from "../PersistenceSubscriptionsService";
 import { Prettifier } from "../Prettifier";
 import { Utils } from "../Utils";
 
@@ -37,7 +37,7 @@ export class UnsubscribeCommand implements ISlashCommand {
         const messageBuilder = creator.startMessage();
         const sender = context.getSender();
 
-        await PersistenceService.removeSubscription(persis, context, domain);
+        await PersistenceSubscriptionsService.removeSubscription(persis, context, domain);
 
         const [botSender, botRoom] = await Utils.getBotData(this.app, read, modify, sender);
         if (!botRoom) {

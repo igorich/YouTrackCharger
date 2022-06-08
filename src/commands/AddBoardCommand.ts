@@ -2,8 +2,8 @@ import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/de
 import { App } from "@rocket.chat/apps-engine/definition/App";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBoardInfo } from "../definitions/IBoardInfo";
-import { PersistenceService } from "../PersistenceService";
-import { Prettifier } from "../Prettifier";
+import { PersistenceBoardsService } from "../PersistenceBoardsService";
+import { Utils } from "../Utils";
 
 export class AddBoardCommand implements ISlashCommand {
     public command: string = "yt-add";
@@ -36,7 +36,7 @@ export class AddBoardCommand implements ISlashCommand {
             return;
         }
 
-        const domain = Prettifier.getUrlDomain(args[0], false);
+        const domain = Utils.getUrlDomain(args[0], false);
         if (!domain) {
             this.app.getLogger().log("Incorrect URL.");
             messageBuilder
@@ -53,7 +53,7 @@ export class AddBoardCommand implements ISlashCommand {
         };
 
         // check if existed
-        if (await PersistenceService.checkIfBoardExisted(read, dataObj.boardUrl)) {
+        if (await PersistenceBoardsService.checkIfBoardExisted(read, dataObj.boardUrl)) {
             this.app.getLogger().log("URL exists");
             messageBuilder
                 .setText("This URL has already been added. Operation denied.")
@@ -64,7 +64,7 @@ export class AddBoardCommand implements ISlashCommand {
             return;
         }
 
-        await PersistenceService.AddBoard(persis, dataObj);
+        await PersistenceBoardsService.AddBoard(persis, dataObj);
 
         messageBuilder
             .setText("YouTrack board added in global list successfuly")

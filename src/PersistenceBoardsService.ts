@@ -1,55 +1,11 @@
 import { IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
-import { SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBoardInfo } from "./definitions/IBoardInfo";
 import { ISubscribeInfo } from "./definitions/ISubscribeInfo";
 import { TypeAssociation } from "./definitions/TypeAssociation";
+import { PersistenceSubscriptionsService } from "./PersistenceSubscriptionsService";
 
-export class PersistenceService {
-
-    public static async addSubscription(persis: IPersistence, senderId: string, boardUrl: string, prefix: string) {
-        const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, senderId);
-        const urlAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, boardUrl);
-        const prefixAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, prefix);
-        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
-
-        const dataObj: ISubscribeInfo = {
-            userId: senderId,
-            boardUrl,
-            prefix,
-        };
-
-        await persis.createWithAssociations(dataObj, [ userAssociation, urlAssociation, prefixAssociation, typeAssociation ]);
-    }
-
-    public static  async removeSubscription(persis: IPersistence, context: SlashCommandContext, boardUrl: string) {
-        const sender = context.getSender();
-        const keyAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, sender.id);
-        const urlAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, boardUrl);
-        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
-
-        await persis.removeByAssociations([ keyAssociation, urlAssociation, typeAssociation ]);
-    }
-
-    public static async getAllSubscriptions(read: IRead, senderId: string): Promise<Array<ISubscribeInfo>> {
-        const persistenceReader = read.getPersistenceReader();
-        const keyAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, senderId);
-        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
-
-        const persistenceItems = await persistenceReader.readByAssociations([ keyAssociation, typeAssociation ]);
-        return persistenceItems.map((obj) => obj as ISubscribeInfo);
-    }
-
-    private static async isSubscriptionPresentedInStorage(read: IRead, boardUrl: string): Promise<boolean> {
-        const persisRead = read.getPersistenceReader();
-        const miscAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, boardUrl);
-        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
-
-        const subscriptions = await persisRead.readByAssociations([ miscAssociation, typeAssociation ]);
-
-        return (subscriptions.length > 0);
-    }
-
+export class PersistenceBoardsService {
     public static async AddBoard(persis: IPersistence, dataObj: IBoardInfo) {
         const urlAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, dataObj.boardUrl);
         const prefixAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, dataObj.prefix);
@@ -63,7 +19,7 @@ export class PersistenceService {
         read: IRead,
         boardUrlOrPrefix: string,
     ): Promise<boolean | Array<object>> {
-        const isActive: boolean = await PersistenceService.isSubscriptionPresentedInStorage(read, boardUrlOrPrefix);
+        const isActive: boolean = await PersistenceSubscriptionsService.isSubscriptionPresentedInStorage(read, boardUrlOrPrefix);
         if (isActive) {
             return false;
         }

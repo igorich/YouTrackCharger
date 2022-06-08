@@ -2,7 +2,7 @@ import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/de
 import { App } from "@rocket.chat/apps-engine/definition/App";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBlock } from "@rocket.chat/apps-engine/definition/uikit";
-import { PersistenceService } from "../PersistenceService";
+import { PersistenceBoardsService } from "../PersistenceBoardsService";
 import { Prettifier } from "../Prettifier";
 
 export class ListAllBoardsCommand implements ISlashCommand {
@@ -27,7 +27,7 @@ export class ListAllBoardsCommand implements ISlashCommand {
         const room = context.getRoom();
         const prettifier = new Prettifier();
 
-        const boardList = await PersistenceService.getAllBoards(read);
+        const boardList = await PersistenceBoardsService.getAllBoards(read);
         const message: Array<IBlock> = prettifier.prettyList(boardList, "All boards");
 
         messageBuilder

@@ -3,7 +3,7 @@ import { App } from "@rocket.chat/apps-engine/definition/App";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBlock } from "@rocket.chat/apps-engine/definition/uikit";
 import { ISubscribeInfo } from "../definitions/ISubscribeInfo";
-import { PersistenceService } from "../PersistenceService";
+import { PersistenceSubscriptionsService } from "../PersistenceSubscriptionsService";
 import { Prettifier } from "../Prettifier";
 
 export class RemoveBoardCommand implements ISlashCommand {
@@ -35,7 +35,7 @@ export class RemoveBoardCommand implements ISlashCommand {
             return;
         }
 
-        const removeResult: boolean | Array<object> = await PersistenceService.removeByBoardUrlOrPrefix(persis, read, boardUrlOrPrefix);
+        const removeResult: boolean | Array<object> = await PersistenceSubscriptionsService.removeByBoardUrlOrPrefix(persis, read, boardUrlOrPrefix);
 
         // TODO: Check the case when several boards were found when deleting by prefix
         if (!removeResult) {
