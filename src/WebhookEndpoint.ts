@@ -6,6 +6,8 @@ import { PersistenceChecker } from "./PersistenceChecker";
 import { Utils } from "./Utils";
 
 export class WebhookEndpoint extends ApiEndpoint {
+    public path: string = "workItemChanged";
+
     public async post(
         request: IApiRequest,
         endpoint: IApiEndpointInfo,
