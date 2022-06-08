@@ -3,8 +3,7 @@ import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from "@rocke
 import { IRoom } from "@rocket.chat/apps-engine/definition/rooms";
 import { IUser } from "@rocket.chat/apps-engine/definition/users";
 import { ISubscribeInfo } from "./definitions/ISubscribeInfo";
-import { PersistenceService } from "./PersistenceService";
-import { Prettifier } from "./Prettifier";
+import { PersistenceSubscriptionsService } from "./PersistenceSubscriptionsService";
 import { Utils } from "./Utils";
 
 export class WebhookEndpoint extends ApiEndpoint {
@@ -20,8 +19,8 @@ export class WebhookEndpoint extends ApiEndpoint {
     ): Promise<IApiResponse | undefined> {
         const ytUsername: string = request.content.username;
         const link: string = request.content.link;
-        const domain: string = Prettifier.getUrlDomain(link, true) ?? "";
-        const subscriptionInfo: ISubscribeInfo | null = await PersistenceService.getSubscriptionYtUsername(read, ytUsername, domain);
+        const domain: string = Utils.getUrlDomain(link, true) ?? "";
+        const subscriptionInfo: ISubscribeInfo | null = await PersistenceSubscriptionsService.getSubscriptionYtUsername(read, ytUsername, domain);
 
         this.app.getLogger().debug(`Data received, request content ${JSON.stringify(request.content)}`);
 

@@ -1,4 +1,3 @@
-import { ILogger, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import {
     BlockElementType,
     BlockType,
@@ -10,52 +9,9 @@ import {
     TextObjectType } from "@rocket.chat/apps-engine/definition/uikit";
 import { ISubscribeInfo } from "./definitions/ISubscribeInfo";
 import { WorkItem } from "./definitions/WorkItem";
-import { PersistenceService } from "./PersistenceService";
 import { Utils } from "./Utils";
 
 export class Prettifier {
-    private static readonly targetUrlRegEx = /(http|https):\/\/(?<link>[\d\w\.]+)\/issue\/\w{2}-\d+/g;
-
-    // Checks if the message should be "prettified"
-    public static async reviewMessage(message: string | undefined, read: IRead, logger: ILogger): Promise<boolean> {
-        if (message) {
-            this.targetUrlRegEx.lastIndex = 0; // reset index before parsing
-            const regExpMatches: RegExpExecArray | null = this.targetUrlRegEx.exec(message);
-            const parsedBoardName: string | undefined = regExpMatches?.groups?.link;
-            if (regExpMatches && parsedBoardName) {
-                return await PersistenceService.checkIfDomainIsInAccessible(read, regExpMatches[0], parsedBoardName);
-            }
-        }
-        logger.log(`Message <${message}> was rejected`);
-        return false;
-    }
-
-    public static getApiUrlFromMessage(message: string): [string, string] {
-        this.targetUrlRegEx.lastIndex = 0; // reset index.
-        const match = this.targetUrlRegEx.exec(message);
-        // https://raftds.youtrack.cloud/issue/RC-5
-        // to
-        // https://raftds.youtrack.cloud/api/issues/RC-5
-        if (match) {
-            return [match[0], match[0].replace("/issue/", "/api/issues/")];
-        }
-        return ["", ""]; // impossible due Prettifier.reviewMessage condition
-        // throw exception in this case
-    }
-
-    public static getUrlDomain(url: string, withProtocol: boolean): string | undefined {
-        const matches = /(https:\/\/|)(?<link>[\d\w\.\-]+\.\w{2,})/g.exec(url);
-
-        if (matches) {
-            if (withProtocol) {
-                return matches[0];
-            } else {
-                return matches.groups?.link;
-            }
-        }
-
-        return undefined;
-    }
 
     public static pretty(workItem: WorkItem): Array<IBlock> {
         const header: ISectionBlock = {

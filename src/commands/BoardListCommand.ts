@@ -3,7 +3,7 @@ import { App } from "@rocket.chat/apps-engine/definition/App";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBlock } from "@rocket.chat/apps-engine/definition/uikit";
 import { ISubscribeInfo } from "../definitions/ISubscribeInfo";
-import { PersistenceService} from "../PersistenceService";
+import { PersistenceSubscriptionsService} from "../PersistenceSubscriptionsService";
 import { Prettifier } from "../Prettifier";
 import { Utils } from "../Utils";
 
@@ -28,7 +28,7 @@ export class BoardListCommand implements ISlashCommand {
         const sender = context.getSender();
         const prettifier = new Prettifier();
 
-        const boardList: Array<ISubscribeInfo> = await PersistenceService.getAllSubscriptions(read, sender.id);
+        const boardList: Array<ISubscribeInfo> = await PersistenceSubscriptionsService.getAllSubscriptions(read, sender.id);
 
         const message: Array<IBlock> = prettifier.prettyList(boardList, "My boards");
         const [botSender, botRoom] = await Utils.getBotData(this.app, read, modify, sender);
