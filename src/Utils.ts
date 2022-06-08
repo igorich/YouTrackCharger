@@ -6,7 +6,13 @@ import { IUser } from "@rocket.chat/apps-engine/definition/users";
 export class Utils {
     public static BOT_NAME: string = "youtrackcharger.bot";
 
-    public static async getDirect(read: IRead, modify: IModify, username: string, botName: string, logger: ILogger): Promise<IRoom | undefined> {
+    public static async getDirect(
+        read: IRead,
+        modify: IModify,
+        username: string,
+        botName: string,
+        logger: ILogger,
+    ): Promise<IRoom | undefined> {
         let room: IRoom;
         try {
             room = await read.getRoomReader().getDirectByUsernames([username, botName]);

@@ -4,6 +4,7 @@ import { IRoom } from "@rocket.chat/apps-engine/definition/rooms";
 import { IUser } from "@rocket.chat/apps-engine/definition/users";
 import { ISubscribeInfo } from "./definitions/ISubscribeInfo";
 import { PersistenceService } from "./PersistenceService";
+import { Prettifier } from "./Prettifier";
 import { Utils } from "./Utils";
 
 export class WebhookEndpoint extends ApiEndpoint {
@@ -17,9 +18,10 @@ export class WebhookEndpoint extends ApiEndpoint {
         http: IHttp,
         persis: IPersistence,
     ): Promise<IApiResponse | undefined> {
-        const username: string = request.content.username;
+        const ytUsername: string = request.content.username;
         const link: string = request.content.link;
-        const subscriptionInfo: ISubscribeInfo | null = await PersistenceService.getSubscriptionYtUsername(read, username, link);
+        const domain: string = Prettifier.getUrlDomain(link, true) ?? "";
+        const subscriptionInfo: ISubscribeInfo | null = await PersistenceService.getSubscriptionYtUsername(read, ytUsername, domain);
 
         this.app.getLogger().debug(`Data received, request content ${JSON.stringify(request.content)}`);
 
@@ -28,7 +30,8 @@ export class WebhookEndpoint extends ApiEndpoint {
             return;
         }
 
-        const directRoom: IRoom | undefined = await Utils.getDirect(read, modify, subscriptionInfo.userId, Utils.BOT_NAME, this.app.getLogger());
+        const rcUser: IUser = await read.getUserReader().getById(subscriptionInfo.userId);
+        const directRoom: IRoom | undefined = await Utils.getDirect(read, modify, rcUser.username, Utils.BOT_NAME, this.app.getLogger());
         const senderBot: IUser = await read.getUserReader().getByUsername(Utils.BOT_NAME);
 
         if (!this.validate(subscriptionInfo.userId, link, senderBot, directRoom, request)) {
