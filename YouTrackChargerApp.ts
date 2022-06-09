@@ -19,9 +19,10 @@ import { ListAllBoardsCommand } from "./src/commands/ListAllBoardsCommand";
 import { RemoveBoardCommand } from "./src/commands/RemoveBoardCommand";
 import { SubscribeCommand } from "./src/commands/SubscribeCommand";
 import { UnsubscribeCommand } from "./src/commands/UnsubscribeCommand";
-import { Prettifier } from "./src/Prettifier";
-import { WebhookEndpoint } from "./src/WebhookEndpoint";
 import { WorkItem } from "./src/definitions/WorkItem";
+import { Prettifier } from "./src/Prettifier";
+import { Utils } from "./src/Utils";
+import { WebhookEndpoint } from "./src/WebhookEndpoint";
 import { YouTrackCommunication } from "./src/YouTrackCommunication";
 
 export class YouTrackChargerApp extends App implements IPreMessageSentModify {
@@ -59,7 +60,7 @@ export class YouTrackChargerApp extends App implements IPreMessageSentModify {
     }
 
     public async checkPreMessageSentModify(message: IMessage, read: IRead, http: IHttp): Promise<boolean> {
-        return Prettifier.reviewMessage(message.text, read, this.getLogger());
+        return Utils.reviewMessage(message.text, read, this.getLogger());
     }
 
     public async executePreMessageSentModify(
@@ -93,7 +94,7 @@ export class YouTrackChargerApp extends App implements IPreMessageSentModify {
             // impossible due Prettifier.reviewMessage condition
             // throw exception in this case
         }
-        const [link, apiLink] = Prettifier.getApiUrlFromMessage(text);
+        const [link, apiLink] = Utils.getApiUrlFromMessage(text);
         const persisRead = read.getPersistenceReader();
 
         const workItem = await YouTrackCommunication.getWorkItem(http, apiLink, persisRead, this.getLogger());

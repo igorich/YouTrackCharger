@@ -2,7 +2,6 @@ import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/de
 import { App } from "@rocket.chat/apps-engine/definition/App";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { PersistenceSubscriptionsService } from "../PersistenceSubscriptionsService";
-import { Prettifier } from "../Prettifier";
 import { Utils } from "../Utils";
 
 export class UnsubscribeCommand implements ISlashCommand {
@@ -26,7 +25,7 @@ export class UnsubscribeCommand implements ISlashCommand {
             this.app.getLogger().log("URL undefined");
             return;
         }
-        let domain = Prettifier.getUrlDomain(args[0], false);
+        let domain = Utils.getUrlDomain(args[0], false);
         if (!domain) {
             this.app.getLogger().log("Incorrect URL");
             return;
