@@ -4,7 +4,6 @@
       "array-type": [true, "generic"],
       "member-access": true,
       "no-any": true,
-      "no-unused-variable": true,
       "no-console": [false],
       "no-duplicate-variable": true,
       "object-literal-sort-keys": false,
