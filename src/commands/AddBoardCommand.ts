@@ -1,10 +1,9 @@
 import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { App } from "@rocket.chat/apps-engine/definition/App";
-import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBoardInfo } from "../definitions/IBoardInfo";
-import { TypeAssociation } from "../definitions/TypeAssociation";
-import { Prettifier } from "../Prettifier";
+import { PersistenceBoardsService } from "../PersistenceBoardsService";
+import { Utils } from "../Utils";
 
 export class AddBoardCommand implements ISlashCommand {
     public command: string = "yt-add";
@@ -20,7 +19,8 @@ export class AddBoardCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence): Promise<void> {
+        persis: IPersistence,
+    ): Promise<void> {
         const args = context.getArguments();
         const sender = context.getSender();
         const room = context.getRoom();
@@ -36,7 +36,7 @@ export class AddBoardCommand implements ISlashCommand {
             return;
         }
 
-        let domain = Prettifier.getUrlDomain(args[0], false);
+        const domain = Utils.getUrlDomain(args[0], false);
         if (!domain) {
             this.app.getLogger().log("Incorrect URL.");
             messageBuilder
@@ -45,22 +45,15 @@ export class AddBoardCommand implements ISlashCommand {
                 .setRoom(room);
             return;
         }
-        domain = `https://${domain}`;
-
-        const boardPrefix = args[1];
-        const authToken = args[2];
 
         const dataObj: IBoardInfo = {
-            boardUrl: domain,
-            prefix: boardPrefix,
-            authToken,
+            boardUrl: `https://${domain}`,
+            prefix: args[1],
+            authToken: args[2],
         };
 
-        const result = await read.getPersistenceReader().readByAssociations([
-            new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, domain),
-            new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.LIST),
-        ]);
-        if (result.length > 0) {
+        // check if existed
+        if (await PersistenceBoardsService.checkIfBoardExisted(read, dataObj.boardUrl)) {
             this.app.getLogger().log("URL exists");
             messageBuilder
                 .setText("This URL has already been added. Operation denied.")
@@ -71,11 +64,7 @@ export class AddBoardCommand implements ISlashCommand {
             return;
         }
 
-        const urlAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, domain);
-        const prefixAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, boardPrefix);
-        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.LIST);
-
-        await persis.createWithAssociations(dataObj, [ urlAssociation, prefixAssociation, typeAssociation ]);
+        await PersistenceBoardsService.AddBoard(persis, dataObj);
 
         messageBuilder
             .setText("YouTrack board added in global list successfuly")

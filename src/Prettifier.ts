@@ -1,5 +1,3 @@
-import { ILogger, IRead } from "@rocket.chat/apps-engine/definition/accessors";
-import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import {
     BlockElementType,
     BlockType,
@@ -10,68 +8,10 @@ import {
     ISectionBlock,
     TextObjectType } from "@rocket.chat/apps-engine/definition/uikit";
 import { ISubscribeInfo } from "./definitions/ISubscribeInfo";
-import { TypeAssociation } from "./definitions/TypeAssociation";
-import { Utils } from "./Utils";
 import { WorkItem } from "./definitions/WorkItem";
+import { Utils } from "./Utils";
 
 export class Prettifier {
-    private static readonly targetUrlRegEx = /(http|https):\/\/(?<link>[\d\w\.]+)\/issue\/\w{2}-\d+/g;
-
-    // Checks if the message should be "prettified"
-    public static async reviewMessage(message: string | undefined, read: IRead, logger: ILogger): Promise<boolean> {
-        if (message) {
-            this.targetUrlRegEx.lastIndex = 0; // reset index before parsing
-            const regExpMatches: RegExpExecArray | null = this.targetUrlRegEx.exec(message);
-            const parsedBoardName: string | undefined = regExpMatches?.groups?.link;
-            if(regExpMatches && parsedBoardName) {
-                return Prettifier.checkURIFromMessage(regExpMatches[0], parsedBoardName, read);
-            }
-        }
-        logger.log(`Message <${message}> was rejected`);
-        return false;
-    }
-
-    // Checks if the URI from the message matches the conditions
-    private static async checkURIFromMessage(messageURI: string, boardName: string, read: IRead) : Promise<boolean> {
-        if(messageURI.includes("/issue/")) {
-            const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.LIST);
-            const persistenceItems = await read.getPersistenceReader().readByAssociations([ typeAssociation ]);
-            // need to check if a board name in the global list of boards
-            for(let obj of persistenceItems) {
-                if((obj as ISubscribeInfo).boardUrl.includes(boardName)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public static getApiUrlFromMessage(message: string): [string, string] {
-        this.targetUrlRegEx.lastIndex = 0; // reset index.
-        const match = this.targetUrlRegEx.exec(message);
-        // https://raftds.youtrack.cloud/issue/RC-5
-        // to
-        // https://raftds.youtrack.cloud/api/issues/RC-5
-        if (match) {
-            return [match[0], match[0].replace("/issue/", "/api/issues/")];
-        }
-        return ["", ""]; // impossible due Prettifier.reviewMessage condition
-        // throw exception in this case
-    }
-
-    public static getUrlDomain(url: string, withProtocol: boolean): string | undefined {
-        const matches = /(https:\/\/|)(?<link>[\d\w\.\-]+\.\w{2,})/g.exec(url);
-
-        if (matches) {
-            if (withProtocol) {
-                return matches[0];
-            } else {
-                return matches.groups?.link;
-            }
-        }
-
-        return undefined;
-    }
 
     public static pretty(workItem: WorkItem): Array<IBlock> {
         const header: ISectionBlock = {
@@ -86,7 +26,7 @@ export class Prettifier {
             type: BlockType.SECTION,
             text: {
                 type: TextObjectType.MARKDOWN,
-                text: `>  ${Utils.replaceAll(workItem.Description, '\n\n', '\n\n> ')}`, // add split by lines
+                text: `>  ${Utils.replaceAll(workItem.Description, "\n\n", "\n\n> ")}`, // add split by lines
             },
             accessory: {
                 actionId: "btAction",
@@ -101,7 +41,7 @@ export class Prettifier {
             },
         };
         const fields: Array<IContextBlock> = [];
-        if(workItem.Priority) {
+        if (workItem.Priority) {
             fields.push({
                 type: BlockType.CONTEXT,
                 elements: [{
@@ -113,7 +53,7 @@ export class Prettifier {
                 }],
             });
         }
-        if(workItem.State) {
+        if (workItem.State) {
             fields.push({
                 type: BlockType.CONTEXT,
                 elements: [{
@@ -125,7 +65,7 @@ export class Prettifier {
                 }],
             });
         }
-        if(workItem.Project) {
+        if (workItem.Project) {
             fields.push({
                 type: BlockType.CONTEXT,
                 elements: [{
@@ -137,7 +77,7 @@ export class Prettifier {
                 }],
             });
         }
-        if(workItem.Assignee) {
+        if (workItem.Assignee) {
                 fields.push({
                 type: BlockType.CONTEXT,
                 elements: [{

@@ -1,9 +1,7 @@
 import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { App } from "@rocket.chat/apps-engine/definition/App";
-import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
-import { TypeAssociation } from "../definitions/TypeAssociation";
-import { Prettifier } from "../Prettifier";
+import { PersistenceSubscriptionsService } from "../PersistenceSubscriptionsService";
 import { Utils } from "../Utils";
 
 export class UnsubscribeCommand implements ISlashCommand {
@@ -20,13 +18,14 @@ export class UnsubscribeCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence): Promise<void> {
+        persis: IPersistence,
+    ): Promise<void> {
         const args = context.getArguments();
         if (!args[0]) {
             this.app.getLogger().log("URL undefined");
             return;
         }
-        let domain = Prettifier.getUrlDomain(args[0], false);
+        let domain = Utils.getUrlDomain(args[0], false);
         if (!domain) {
             this.app.getLogger().log("Incorrect URL");
             return;
@@ -36,11 +35,8 @@ export class UnsubscribeCommand implements ISlashCommand {
         const creator = modify.getCreator();
         const messageBuilder = creator.startMessage();
         const sender = context.getSender();
-        const keyAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, sender.id);
-        const urlAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, domain);
-        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
 
-        await persis.removeByAssociations([ keyAssociation, urlAssociation, typeAssociation ]);
+        await PersistenceSubscriptionsService.removeSubscription(persis, context, domain);
 
         const [botSender, botRoom] = await Utils.getBotData(this.app, read, modify, sender);
         if (!botRoom) {

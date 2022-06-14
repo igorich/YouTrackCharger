@@ -1,10 +1,9 @@
 import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { App } from "@rocket.chat/apps-engine/definition/App";
-import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBlock } from "@rocket.chat/apps-engine/definition/uikit";
 import { ISubscribeInfo } from "../definitions/ISubscribeInfo";
-import { TypeAssociation } from "../definitions/TypeAssociation";
+import { PersistenceBoardsService } from "../PersistenceBoardsService";
 import { Prettifier } from "../Prettifier";
 
 export class RemoveBoardCommand implements ISlashCommand {
@@ -21,23 +20,24 @@ export class RemoveBoardCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence): Promise<void> {
+        persis: IPersistence,
+    ): Promise<void> {
         const creator = modify.getCreator();
         const prettifier = new Prettifier();
         const messageBuilder = creator.startMessage();
         const sender = context.getSender();
         const room = context.getRoom();
         const args = context.getArguments();
-        const param = args[0];
+        const boardUrlOrPrefix = args[0];
 
-        if (!param) {
+        if (!boardUrlOrPrefix) {
             this.app.getLogger().log("Nothing to remove");
             return;
         }
 
-        const removeResult: boolean | Array<object> = await this.removeBy(param, read, persis);
+        const removeResult: boolean | Array<object> = await PersistenceBoardsService.removeByBoardUrlOrPrefix(persis, read, boardUrlOrPrefix);
 
-        // TODO: Проверить случай, когда при удалении по префиксу нашлось несколько борд
+        // TODO: Check the case when several boards were found when deleting by prefix
         if (!removeResult) {
             this.app.getLogger().log("Remove board operation denied. Subscription is active.");
             messageBuilder
@@ -55,32 +55,5 @@ export class RemoveBoardCommand implements ISlashCommand {
         }
 
         await creator.finish(messageBuilder);
-    }
-
-    private async removeBy(
-        argument: string,
-        read: IRead,
-        persis: IPersistence): Promise<boolean | Array<object>> {
-        const isActive = await this.checkSubcription(argument, read);
-        if (isActive) {
-            return false;
-        }
-
-        const removed = await persis.removeByAssociations([
-            new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, argument),
-            new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.LIST),
-        ]);
-
-        return removed;
-    }
-
-    private async checkSubcription(argument: string, read: IRead): Promise <number> {
-        const persisRead = read.getPersistenceReader();
-        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
-        const miscAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, argument);
-
-        const subscriptions = await persisRead.readByAssociations([ miscAssociation, typeAssociation ]);
-
-        return subscriptions.length;
     }
 }

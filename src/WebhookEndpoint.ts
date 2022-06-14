@@ -1,13 +1,12 @@
 import { IHttp, IMessageBuilder, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from "@rocket.chat/apps-engine/definition/api";
-import { IApp } from "@rocket.chat/apps-engine/definition/IApp";
-import { IRoom, RoomType } from "@rocket.chat/apps-engine/definition/rooms";
+import { IRoom } from "@rocket.chat/apps-engine/definition/rooms";
 import { IUser } from "@rocket.chat/apps-engine/definition/users";
-import { PersistenceChecker } from "./PersistenceChecker";
+import { PersistenceSubscriptionsService } from "./PersistenceSubscriptionsService";
 import { Utils } from "./Utils";
 
 export class WebhookEndpoint extends ApiEndpoint {
-    public path = "webhook";
+    public path: string = "workItemChanged";
 
     public async post(
         request: IApiRequest,
@@ -20,7 +19,7 @@ export class WebhookEndpoint extends ApiEndpoint {
         const username: string = request.content.username;
         const link: string = request.content.link;
         const persisRead = read.getPersistenceReader();
-        const subscriptionInfo = PersistenceChecker.tryGetSubscriptionInfo(persisRead, username, link);
+        const subscriptionInfo = PersistenceSubscriptionsService.tryGetSubscriptionInfo(persisRead, username, link);
 
         this.app.getLogger().debug(`Data received, request content ${JSON.stringify(request.content)}`);
 

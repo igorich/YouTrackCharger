@@ -3,9 +3,7 @@ import { App } from "@rocket.chat/apps-engine/definition/App";
 import { RocketChatAssociationModel, RocketChatAssociationRecord } from "@rocket.chat/apps-engine/definition/metadata";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IBoardInfo } from "../definitions/IBoardInfo";
-import { ISubscribeInfo } from "../definitions/ISubscribeInfo";
-import { TypeAssociation } from "../definitions/TypeAssociation";
-import { Prettifier } from "../Prettifier";
+import { PersistenceSubscriptionsService } from "../PersistenceSubscriptionsService";
 import { Utils } from "../Utils";
 
 export class SubscribeCommand implements ISlashCommand {
@@ -22,7 +20,8 @@ export class SubscribeCommand implements ISlashCommand {
         read: IRead,
         modify: IModify,
         http: IHttp,
-        persis: IPersistence): Promise<void> {
+        persis: IPersistence,
+    ): Promise<void> {
         const creator = modify.getCreator();
         const messageBuilder = creator.startMessage();
         const sender = context.getSender();
@@ -31,7 +30,7 @@ export class SubscribeCommand implements ISlashCommand {
             this.app.getLogger().log("Need argument");
             return;
         }
-        let url = Prettifier.getUrlDomain(args[0], false);
+        let url = Utils.getUrlDomain(args[0], false);
         if (!url) {
             this.app.getLogger().log("Incorrect URL");
             return;
@@ -49,16 +48,8 @@ export class SubscribeCommand implements ISlashCommand {
         //#endregion
         const prefix = (persistenceItems[0] as IBoardInfo)?.prefix;
 
-        const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, sender.id);
-        const prefixAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, prefix);
-        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
-        const dataObj: ISubscribeInfo = {
-            userId: sender.id,
-            boardUrl: url,
-            prefix,
-        };
+        await PersistenceSubscriptionsService.addSubscription(persis, sender.id, url, prefix);
 
-        await persis.createWithAssociations(dataObj, [ userAssociation, urlAssociation, prefixAssociation, typeAssociation ]);
         const [botSender, botRoom] = await Utils.getBotData(this.app, read, modify, sender);
         if (!botRoom) {
             this.app.getLogger().log("Error occured while get bot room.");
