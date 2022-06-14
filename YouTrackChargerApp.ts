@@ -71,7 +71,7 @@ export class YouTrackChargerApp extends App implements IPreMessageSentModify {
         persistence: IPersistence,
     ): Promise<IMessage> {
         const workItem = await this.getWorkItem(http, read, message.text);
-        if (workItem !== undefined) {
+        if (workItem !== null) {
             if (message.text && message.text?.length > workItem.URL.length) {
                 const baseBody: ISectionBlock = {
                     type: BlockType.SECTION,
@@ -88,9 +88,9 @@ export class YouTrackChargerApp extends App implements IPreMessageSentModify {
         return builder.getMessage();
     }
 
-    private async getWorkItem(http: IHttp, read: IRead, text: string | undefined): Promise<WorkItem | undefined> {
+    private async getWorkItem(http: IHttp, read: IRead, text: string | undefined): Promise<WorkItem | null> {
         if (text === undefined) {
-            return undefined;
+            return null;
             // impossible due Prettifier.reviewMessage condition
             // throw exception in this case
         }
