@@ -1,6 +1,8 @@
 import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { App } from "@rocket.chat/apps-engine/definition/App";
 import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
+import { IBoardInfo } from "../definitions/IBoardInfo";
+import { PersistenceBoardsService } from "../PersistenceBoardsService";
 import { PersistenceSubscriptionsService } from "../PersistenceSubscriptionsService";
 import { Utils } from "../Utils";
 
@@ -22,21 +24,20 @@ export class UnsubscribeCommand implements ISlashCommand {
     ): Promise<void> {
         const args = context.getArguments();
         if (!args[0]) {
-            this.app.getLogger().log("URL undefined");
+            this.app.getLogger().log("Error: No arguments.");
             return;
         }
-        let domain = Utils.getUrlDomain(args[0], false);
+        const domain = Utils.getUrlDomain(args[0], true);
         if (!domain) {
-            this.app.getLogger().log("Incorrect URL");
-            return;
+            this.app.getLogger().log("Warning: No URL in argument");
         }
-        domain = `https://${domain}`;
 
         const creator = modify.getCreator();
         const messageBuilder = creator.startMessage();
         const sender = context.getSender();
 
-        await PersistenceSubscriptionsService.removeSubscription(persis, context, domain);
+        const board: IBoardInfo = await PersistenceBoardsService.getByUrlOrPrefix(read, domain, args[0].toUpperCase());
+        await PersistenceSubscriptionsService.removeSubscription(persis, context, board.boardUrl);
 
         const [botSender, botRoom] = await Utils.getBotData(this.app, read, modify, sender);
         if (!botRoom) {

@@ -2,6 +2,7 @@ import { IHttp, IMessageBuilder, IModify, IPersistence, IRead } from "@rocket.ch
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from "@rocket.chat/apps-engine/definition/api";
 import { IRoom } from "@rocket.chat/apps-engine/definition/rooms";
 import { IUser } from "@rocket.chat/apps-engine/definition/users";
+import { ISubscribeInfo } from "./definitions/ISubscribeInfo";
 import { PersistenceSubscriptionsService } from "./PersistenceSubscriptionsService";
 import { Utils } from "./Utils";
 
@@ -16,10 +17,10 @@ export class WebhookEndpoint extends ApiEndpoint {
         http: IHttp,
         persis: IPersistence,
     ): Promise<IApiResponse | undefined> {
-        const username: string = request.content.username;
+        const ytUsername: string = request.content.username;
         const link: string = request.content.link;
-        const persisRead = read.getPersistenceReader();
-        const subscriptionInfo = PersistenceSubscriptionsService.tryGetSubscriptionInfo(persisRead, username, link);
+        const domain: string = Utils.getUrlDomain(link, true) ?? "";
+        const subscriptionInfo: ISubscribeInfo | null = await PersistenceSubscriptionsService.getSubscriptionYtUsername(read, ytUsername, domain);
 
         this.app.getLogger().debug(`Data received, request content ${JSON.stringify(request.content)}`);
 
@@ -28,10 +29,11 @@ export class WebhookEndpoint extends ApiEndpoint {
             return;
         }
 
-        const directRoom: IRoom | undefined = await Utils.getDirect(read, modify, username, Utils.BOT_NAME, this.app.getLogger());
+        const rcUser: IUser = await read.getUserReader().getById(subscriptionInfo.userId);
+        const directRoom: IRoom | undefined = await Utils.getDirect(read, modify, rcUser.username, Utils.BOT_NAME, this.app.getLogger());
         const senderBot: IUser = await read.getUserReader().getByUsername(Utils.BOT_NAME);
 
-        if (!this.validate(username, link, senderBot, directRoom, request)) {
+        if (!this.validate(subscriptionInfo.userId, link, senderBot, directRoom, request)) {
             return this.success();
         }
 

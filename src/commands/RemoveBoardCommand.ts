@@ -4,7 +4,9 @@ import { ISlashCommand, SlashCommandContext } from "@rocket.chat/apps-engine/def
 import { IBlock } from "@rocket.chat/apps-engine/definition/uikit";
 import { ISubscribeInfo } from "../definitions/ISubscribeInfo";
 import { PersistenceBoardsService } from "../PersistenceBoardsService";
+import { PersistenceSubscriptionsService } from "../PersistenceSubscriptionsService";
 import { Prettifier } from "../Prettifier";
+import { Utils } from "../Utils";
 
 export class RemoveBoardCommand implements ISlashCommand {
     public command: string = "yt-remove";
@@ -35,24 +37,28 @@ export class RemoveBoardCommand implements ISlashCommand {
             return;
         }
 
-        const removeResult: boolean | Array<object> = await PersistenceBoardsService.removeByBoardUrlOrPrefix(persis, read, boardUrlOrPrefix);
+        const isActive: boolean = await PersistenceSubscriptionsService.isSubscriptionPresentedInStorage(read, boardUrlOrPrefix);
+        if (isActive) {
+            Utils.logAndNotifyUser(
+                "Current subscription had active subscribers. All subscriptions will be disabled.",
+                this.app.getLogger(),
+                messageBuilder,
+                context,
+            );
+
+            await PersistenceSubscriptionsService.removeAllSubscriptionsForBoard(persis, boardUrlOrPrefix);
+        }
 
         // TODO: Check the case when several boards were found when deleting by prefix
-        if (!removeResult) {
-            this.app.getLogger().log("Remove board operation denied. Subscription is active.");
-            messageBuilder
-                .setText("Remove operation denied. Current subscribtion had active subscribers.")
-                .setSender(sender)
-                .setRoom(room);
-        } else {
-            const message: Array<IBlock> = prettifier.prettyList(
-                (removeResult as Array<object>).map((obj) => obj as ISubscribeInfo),
-                "Removed boards");
-            messageBuilder
-                .addBlocks(message)
-                .setSender(sender)
-                .setRoom(room);
-        }
+        const removeResult: boolean | Array<object> = await PersistenceBoardsService.removeByBoardUrlOrPrefix(persis, boardUrlOrPrefix);
+
+        const message: Array<IBlock> = prettifier.prettyList(
+            (removeResult as Array<object>).map((obj) => obj as ISubscribeInfo),
+            "Removed boards");
+        messageBuilder
+            .addBlocks(message)
+            .setSender(sender)
+            .setRoom(room);
 
         await creator.finish(messageBuilder);
     }

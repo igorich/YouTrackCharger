@@ -124,7 +124,7 @@ export class Prettifier {
                 type: BlockType.CONTEXT,
                 elements: [{
                     type: TextObjectType.MARKDOWN,
-                    text: `> ${indx + 1}. [${item.prefix}](${item.boardUrl})`,
+                    text: `> ${indx + 1}. [${item.prefix}](${item.boardUrl}) for user ${item.youTrackUserName}`,
                 }],
             };
 

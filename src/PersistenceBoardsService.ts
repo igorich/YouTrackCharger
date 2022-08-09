@@ -16,14 +16,8 @@ export class PersistenceBoardsService {
 
     public static async removeByBoardUrlOrPrefix(
         persis: IPersistence,
-        read: IRead,
         boardUrlOrPrefix: string,
     ): Promise<boolean | Array<object>> {
-        const isActive: boolean = await PersistenceSubscriptionsService.isSubscriptionPresentedInStorage(read, boardUrlOrPrefix);
-        if (isActive) {
-            return false;
-        }
-
         const removed = await persis.removeByAssociations([
             new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, boardUrlOrPrefix),
             new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.LIST),
@@ -39,6 +33,25 @@ export class PersistenceBoardsService {
         const list = await persistenceReader.readByAssociations([ typeAssociation ]);
 
         return list.map((obj) => obj as ISubscribeInfo);
+    }
+
+    public static async getByUrlOrPrefix(read: IRead, url: string | undefined, prefix: string): Promise<IBoardInfo> {
+        if (url) {
+            const urlItems = await read.getPersistenceReader().readByAssociations([
+                new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, url),
+                new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.LIST),
+            ]);
+            if (urlItems && urlItems.length > 0) {
+                return urlItems[0] as IBoardInfo;
+            }
+        }
+
+        const prefixItems = await read.getPersistenceReader().readByAssociations([
+            new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, prefix),
+            new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.LIST),
+        ]);
+
+        return prefixItems[0] as IBoardInfo;
     }
 
     // Checks if the URI from the message matches the conditions
