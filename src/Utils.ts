@@ -1,6 +1,7 @@
-import { ILogger, IModify, IRead } from "@rocket.chat/apps-engine/definition/accessors";
+import { ILogger, IMessageBuilder, IModify, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { IApp } from "@rocket.chat/apps-engine/definition/IApp";
 import { IRoom, RoomType } from "@rocket.chat/apps-engine/definition/rooms";
+import { SlashCommandContext } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { IUser } from "@rocket.chat/apps-engine/definition/users";
 import { PersistenceBoardsService } from "./PersistenceBoardsService";
 
@@ -41,12 +42,12 @@ export class Utils {
         }
     }
 
-    public static getUrlDomain(url: string, withProtocol: boolean): string | undefined {
+    public static getUrlDomain(url: string, returnWithProtocol: boolean): string | undefined {
         const matches = /(https:\/\/|)(?<link>[\d\w\.\-]+\.\w{2,})/g.exec(url);
 
         if (matches) {
-            if (withProtocol) {
-                return matches[0];
+            if (returnWithProtocol) {
+                return `https://${matches.groups?.link}`;
             } else {
                 return matches.groups?.link;
             }
@@ -99,4 +100,13 @@ export class Utils {
         return str.replace(new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"), replace);
     }
 
+    public static logAndNotifyUser(message: string, logger: ILogger, messageBuilder: IMessageBuilder, context: SlashCommandContext) {
+        logger.log(message);
+        const sender = context.getSender();
+        const room = context.getRoom();
+        messageBuilder
+            .setText("This URL has already been added. Operation denied.")
+            .setSender(sender)
+            .setRoom(room);
+    }
 }

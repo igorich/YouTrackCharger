@@ -28,26 +28,28 @@ export class AddBoardCommand implements ISlashCommand {
         const messageBuilder = creator.startMessage();
 
         if (args.length < 3) {
-            this.app.getLogger().log("Missing arguments.");
-            messageBuilder
-                .setText("Oops! Missing some arguments")
-                .setSender(sender)
-                .setRoom(room);
+            Utils.logAndNotifyUser(
+                "Oops! Missing some arguments",
+                this.app.getLogger(),
+                messageBuilder,
+                context,
+            );
             return;
         }
 
-        const domain = Utils.getUrlDomain(args[0], false);
+        const domain = Utils.getUrlDomain(args[0], true);
         if (!domain) {
-            this.app.getLogger().log("Incorrect URL.");
-            messageBuilder
-                .setText("The URL you provided is incorrect")
-                .setSender(sender)
-                .setRoom(room);
+            Utils.logAndNotifyUser(
+                "The URL you provided is incorrect",
+                this.app.getLogger(),
+                messageBuilder,
+                context,
+            );
             return;
         }
 
         const dataObj: IBoardInfo = {
-            boardUrl: `https://${domain}`,
+            boardUrl: domain,
             prefix: args[1],
             authToken: args[2],
         };

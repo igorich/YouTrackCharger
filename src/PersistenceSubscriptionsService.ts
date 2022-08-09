@@ -40,12 +40,14 @@ export class PersistenceSubscriptionsService {
 
     public static async tryGetSubscriptionInfo(
         persis: IPersistenceRead,
-        username: string,
-        url: string,
+        senderId: string,
+        boardUrl: string,
+        prefix: string,
     ): Promise<ISubscribeInfo | undefined> {
         const associations = [
-            new RocketChatAssociationRecord(RocketChatAssociationModel.USER, username),
-            new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, url),
+            new RocketChatAssociationRecord(RocketChatAssociationModel.USER, senderId),
+            new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, boardUrl),
+            new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, prefix),
             new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE),
         ];
 
@@ -94,5 +96,12 @@ export class PersistenceSubscriptionsService {
         const subscriptions = await persisRead.readByAssociations([ miscAssociation, typeAssociation ]);
 
         return (subscriptions.length > 0);
+    }
+
+    public static async removeAllSubscriptionsForBoard(persis: IPersistence, boardUrlOrPrefix: string) {
+        const urlAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, boardUrlOrPrefix);
+        const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, TypeAssociation.SUBSCRIBE);
+
+        await persis.removeByAssociations([ urlAssociation, typeAssociation ]);
     }
 }
